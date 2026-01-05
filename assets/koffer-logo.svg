@@ -1,0 +1,88 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="koffer logo">
+  <defs>
+    <linearGradient id="k_body" x1="0" y1="72" x2="0" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F2A3A"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+
+    <linearGradient id="k_lip" x1="0" y1="84" x2="0" y2="132" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#334155" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#0F172A" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="k_lock" x1="104" y1="116" x2="152" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+
+    <filter id="k_shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+
+    <filter id="k_lockshadow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+
+    <clipPath id="k_clip_body">
+      <rect x="32" y="72" width="192" height="160" rx="26"/>
+    </clipPath>
+  </defs>
+
+  <!-- Suitcase -->
+  <g filter="url(#k_shadow)">
+    <rect x="32" y="72" width="192" height="160" rx="26" fill="url(#k_body)" stroke="#07101E" stroke-width="8"/>
+
+    <!-- top lip / band -->
+    <rect x="32" y="72" width="192" height="64" rx="26" fill="url(#k_lip)"/>
+
+    <!-- inner inset (gives shell depth) -->
+    <rect x="46" y="86" width="164" height="132" rx="20" stroke="#0F172A" stroke-width="3" opacity="0.55"/>
+
+    <!-- ridges + seams (clipped to body) -->
+    <g clip-path="url(#k_clip_body)">
+      <path d="M32 136H224" stroke="#0B1628" stroke-width="6" opacity="0.65"/>
+      <path d="M84 92V228" stroke="#334155" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+      <path d="M172 92V228" stroke="#334155" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+
+      <!-- small corner guards -->
+      <path d="M46 106V90H62" stroke="#64748B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M210 106V90H194" stroke="#64748B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M46 198V214H62" stroke="#64748B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+      <path d="M210 198V214H194" stroke="#64748B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+
+      <!-- subtle highlight -->
+      <path d="M54 104C86 92 120 88 202 92" stroke="#E2E8F0" stroke-width="3" stroke-linecap="round" opacity="0.10"/>
+    </g>
+  </g>
+
+  <!-- Handle -->
+  <g>
+    <!-- mounts -->
+    <rect x="72" y="62" width="36" height="22" rx="11" fill="#0B1220" opacity="0.8"/>
+    <rect x="148" y="62" width="36" height="22" rx="11" fill="#0B1220" opacity="0.8"/>
+
+    <!-- handle outer -->
+    <path d="M92 72V56C92 43.8497 101.85 34 114 34H142C154.15 34 164 43.8497 164 56V72"
+          stroke="#94A3B8" stroke-width="14" stroke-linecap="round"/>
+
+    <!-- handle inner -->
+    <path d="M100 72V57C100 49.8203 105.82 44 113 44H143C150.18 44 156 49.8203 156 57V72"
+          stroke="#475569" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+  </g>
+
+  <!-- Lock plate -->
+  <g filter="url(#k_lockshadow)">
+    <rect x="102" y="116" width="52" height="78" rx="12" fill="url(#k_lock)" stroke="#92400E" stroke-width="4"/>
+
+    <!-- plate shine -->
+    <path d="M110 128H146" stroke="#FDE68A" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+    <path d="M110 140H140" stroke="#FFF7ED" stroke-width="2" stroke-linecap="round" opacity="0.25"/>
+
+    <!-- CLI prompt (>_) -->
+    <path d="M116 158L128 170L116 182" stroke="#451A03" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M136 184H150" stroke="#451A03" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- tiny keyhole hint -->
+    <circle cx="144" cy="160" r="4" fill="#451A03" opacity="0.65"/>
+  </g>
+</svg>

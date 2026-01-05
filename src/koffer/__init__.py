@@ -1,3 +1,3 @@
-"""koffer - A Python package placeholder."""
+"""Secure API key and token vault with session-based unlock."""
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"

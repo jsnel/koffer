@@ -1,0 +1,107 @@
+<svg width="980" height="240" viewBox="0 0 980 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="koffer">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="980" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#0A1020"/>
+    </linearGradient>
+
+    <linearGradient id="caseBody" x1="0" y1="72" x2="0" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F2A3A"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+
+    <linearGradient id="lock" x1="102" y1="116" x2="154" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#D97706"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+
+    <filter id="lockShadow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.30"/>
+    </filter>
+
+    <clipPath id="clipCase">
+      <rect x="32" y="72" width="192" height="160" rx="26"/>
+    </clipPath>
+  </defs>
+
+  <!-- Badge background -->
+  <g filter="url(#shadow)">
+    <rect x="10" y="10" width="960" height="220" rx="54" fill="url(#bg)" stroke="#1F2A3A" stroke-width="4"/>
+    <!-- subtle inner border -->
+    <rect x="24" y="24" width="932" height="192" rx="46" stroke="#0F172A" stroke-width="2" opacity="0.9"/>
+  </g>
+
+  <!-- Icon (scaled from a 256x256 design) -->
+  <g transform="translate(56 40) scale(0.625)">
+    <!-- suitcase -->
+    <rect x="32" y="72" width="192" height="160" rx="26" fill="url(#caseBody)" stroke="#07101E" stroke-width="8"/>
+    <rect x="46" y="86" width="164" height="132" rx="20" stroke="#0F172A" stroke-width="3" opacity="0.55"/>
+
+    <g clip-path="url(#clipCase)">
+      <path d="M32 136H224" stroke="#0B1628" stroke-width="6" opacity="0.70"/>
+      <path d="M84 92V228" stroke="#334155" stroke-width="8" stroke-linecap="round" opacity="0.95"/>
+      <path d="M172 92V228" stroke="#334155" stroke-width="8" stroke-linecap="round" opacity="0.95"/>
+
+      <path d="M46 106V90H62" stroke="#94A3B8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.70"/>
+      <path d="M210 106V90H194" stroke="#94A3B8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.70"/>
+      <path d="M46 198V214H62" stroke="#94A3B8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.70"/>
+      <path d="M210 198V214H194" stroke="#94A3B8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.70"/>
+
+      <path d="M54 104C88 92 124 88 202 92" stroke="#E2E8F0" stroke-width="3" stroke-linecap="round" opacity="0.10"/>
+    </g>
+
+    <!-- handle -->
+    <rect x="72" y="62" width="36" height="22" rx="11" fill="#0B1220" opacity="0.85"/>
+    <rect x="148" y="62" width="36" height="22" rx="11" fill="#0B1220" opacity="0.85"/>
+    <path d="M92 72V56C92 43.8497 101.85 34 114 34H142C154.15 34 164 43.8497 164 56V72"
+          stroke="#94A3B8" stroke-width="14" stroke-linecap="round"/>
+    <path d="M100 72V57C100 49.8203 105.82 44 113 44H143C150.18 44 156 49.8203 156 57V72"
+          stroke="#475569" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+
+    <!-- lock -->
+    <g filter="url(#lockShadow)">
+      <rect x="102" y="116" width="52" height="78" rx="12" fill="url(#lock)" stroke="#92400E" stroke-width="4"/>
+      <path d="M110 128H146" stroke="#FDE68A" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+
+      <!-- CLI prompt (>_) -->
+      <path d="M116 158L128 170L116 182" stroke="#451A03" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M136 184H150" stroke="#451A03" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="144" cy="160" r="4" fill="#451A03" opacity="0.65"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <g>
+    <text x="252" y="128"
+          fill="#E2E8F0"
+          font-size="78"
+          font-weight="800"
+          letter-spacing="-1.5"
+          font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'">
+      koffer
+    </text>
+
+    <!-- small prompt accent -->
+    <text x="525" y="128"
+          fill="#FBBF24"
+          font-size="64"
+          font-weight="800"
+          letter-spacing="-1"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace">
+      &gt;_
+    </text>
+
+    <text x="252" y="168"
+          fill="#94A3B8"
+          font-size="22"
+          font-weight="600"
+          letter-spacing="0.2"
+          font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'">
+      secure token suitcase • session unlock • encrypted at rest
+    </text>
+  </g>
+</svg>
