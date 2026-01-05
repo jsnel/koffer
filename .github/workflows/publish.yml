@@ -3,11 +3,11 @@ name: Publish to PyPI
 on:
   release:
     types: [published]
-  workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: github.event.release.target_commitish == 'main'
     permissions:
       contents: read
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
@@ -18,6 +18,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Validate release tag and main ancestry
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          if [[ ! "${TAG_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-].+)?$ ]]; then
+            echo "Ref '${TAG_NAME}' is not a version tag (expected vMAJOR.MINOR.PATCH)." >&2
+            exit 1
+          fi
+
+          git fetch origin main --no-tags
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" "origin/main"; then
+            echo "Tag '${TAG_NAME}' does not point to a commit on 'main'; refusing to publish." >&2
+            exit 1
+          fi
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
