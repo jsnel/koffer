@@ -34,7 +34,6 @@ class TestDeriveKey:
 
 class TestEncryption:
     """Tests for encryption and decryption."""
-    
 
     def test_encrypt_decrypt_roundtrip_and_nonce_uniqueness(self) -> None:
         key = secrets.token_bytes(32)
@@ -64,7 +63,7 @@ class TestEncryption:
 
         with pytest.raises(Exception):
             decrypt_value(key, ciphertext, nonce)
-    
+
     @pytest.mark.parametrize(
         "plaintext",
         ["", "secret-🔑-key-ひみつ", "x" * 8192],

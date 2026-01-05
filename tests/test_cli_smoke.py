@@ -32,7 +32,9 @@ def _run_cli(monkeypatch: pytest.MonkeyPatch, argv: list[str]) -> None:
         ("cmd_purge_keyring", ["koffer", "purge-keyring"]),
     ],
 )
-def test_cli_dispatches(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, func_name: str, argv: list[str]) -> None:
+def test_cli_dispatches(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, func_name: str, argv: list[str]
+) -> None:
     called: dict[str, object] = {}
 
     def _fake(args: object) -> None:

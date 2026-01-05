@@ -72,9 +72,10 @@ def format_export(env_var: str, value: str, shell: str, show_full: bool = False)
     else:
         # Obfuscate with base64 encoding
         import base64
+
         encoded = base64.b64encode(value.encode()).decode()
         anonymized = anonymize_secret(value)
-        
+
         if shell == "powershell":
             return f'$env:{env_var} = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("{encoded}"))  # {anonymized}'
         else:

@@ -36,6 +36,8 @@ dependencies = [
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
+    "pre-commit>=3.2.0",
+    "ruff>=0.14.0",
 ]
 
 [project.urls]
@@ -68,8 +70,13 @@ exclude_lines = [
     "if __name__ == .__main__.:",
 ]
 
+[tool.ruff]
+line-length = 99
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "pre-commit>=3.2.0",
+    "ruff>=0.14.0",
 ]

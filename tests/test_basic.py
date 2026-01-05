@@ -19,7 +19,7 @@ class TestKofferBasic(unittest.TestCase):
         self.assertTrue(hasattr(koffer, "__version__"))
         self.assertIsInstance(koffer.__version__, str)
         # Version format should follow semantic versioning
-        self.assertRegex(koffer.__version__, r'^\d+\.\d+\.\d+.*$')
+        self.assertRegex(koffer.__version__, r"^\d+\.\d+\.\d+.*$")
 
 
 if __name__ == "__main__":

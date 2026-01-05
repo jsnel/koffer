@@ -25,22 +25,22 @@ def temp_koffer(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def mock_keyring(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
     """Mock keyring to avoid system credential manager access."""
     storage: dict[str, str] = {}
-    
+
     def mock_set(service: str, username: str, password: str) -> None:
         storage[f"{service}:{username}"] = password
-    
+
     def mock_get(service: str, username: str) -> str | None:
         return storage.get(f"{service}:{username}")
-    
+
     def mock_delete(service: str, username: str) -> None:
         key = f"{service}:{username}"
         if key in storage:
             del storage[key]
-    
+
     monkeypatch.setattr("keyring.set_password", mock_set)
     monkeypatch.setattr("keyring.get_password", mock_get)
     monkeypatch.setattr("keyring.delete_password", mock_delete)
-    
+
     return storage
 
 
@@ -50,7 +50,7 @@ def sample_koffer_data() -> dict[str, Any]:
     return {
         "version": 2,
         "salt": "AAAAAAAAAAAAAAAAAAAAAA==",  # 16 bytes of zeros, base64 encoded
-        "entries": {}
+        "entries": {},
     }
 
 

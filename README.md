@@ -201,7 +201,13 @@ git clone https://github.com/jsnel/koffer.git
 cd koffer
 
 # Setup env with dev dependencies
-uv sync 
+uv sync --extra dev
+
+# Install git hooks (runs Ruff + basic hygiene checks)
+uv run pre-commit install
+
+# Run hooks against all files
+uv run pre-commit run -a
 
 # Run tests
 uv run pytest

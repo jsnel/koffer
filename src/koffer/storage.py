@@ -22,6 +22,7 @@ KOFFER_BACKUP_PATH = Path.home() / ".koffer-backup.enc"
 @dataclass
 class SecretEntry:
     """Single secret entry (API key, token, etc.)."""
+
     name: str
     env_var: str
     secret_type: str  # "key", "token", "secret"
@@ -33,10 +34,11 @@ class SecretEntry:
 @dataclass
 class Koffer:
     """Encrypted secrets koffer."""
+
     salt: bytes
     entries: dict[str, SecretEntry] = field(default_factory=dict)
     config: dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> dict[str, Any]:
         result = {
             "version": 3,
@@ -51,12 +53,12 @@ class Koffer:
                     **(({"companions": e.companions}) if e.companions else {}),
                 }
                 for name, e in self.entries.items()
-            }
+            },
         }
         if self.config:
             result["config"] = self.config
         return result
-    
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Koffer:
         koffer = cls(salt=base64.b64decode(data["salt"]))
@@ -71,11 +73,11 @@ class Koffer:
             )
         koffer.config = data.get("config", {})
         return koffer
-    
+
     def get_config(self, key: str, default: Any = None) -> Any:
         """Get a config value with optional default."""
         return self.config.get(key, default)
-    
+
     def set_config(self, key: str, value: Any) -> None:
         """Set a config value."""
         self.config[key] = value
@@ -88,7 +90,9 @@ def entry_aad(entry: SecretEntry) -> bytes:
     so tampering with those fields causes decryption to fail.
     """
     companions_json = json.dumps(entry.companions or {}, sort_keys=True, separators=(",", ":"))
-    return (f"{entry.name}\0{entry.env_var}\0{entry.secret_type}\0{companions_json}").encode("utf-8")
+    return (f"{entry.name}\0{entry.env_var}\0{entry.secret_type}\0{companions_json}").encode(
+        "utf-8"
+    )
 
 
 def secure_file_permissions(path: Path) -> None:
@@ -109,24 +113,24 @@ def load_koffer() -> Koffer | None:
 
 def save_koffer(koffer: Koffer) -> None:
     """Save koffer with secure permissions using atomic write.
-    
+
     If KOFFER_PATH is a symlink, writes to the symlink target to preserve
     the link (important for WSL2/Windows shared koffer setups).
     """
     # Resolve symlinks to write to the actual target file
     target_path = KOFFER_PATH.resolve() if KOFFER_PATH.is_symlink() else KOFFER_PATH
-    
+
     # Create a temporary file in the same directory as the target
     fd, temp_path_str = tempfile.mkstemp(dir=target_path.parent, prefix=".koffer.tmp")
     temp_path = Path(temp_path_str)
-    
+
     try:
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, "w") as f:
             json.dump(koffer.to_dict(), f, indent=2)
-        
+
         # Set permissions before moving
         secure_file_permissions(temp_path)
-        
+
         # Atomic rename to the resolved target
         temp_path.replace(target_path)
     except Exception:
@@ -157,6 +161,7 @@ def backup_koffer() -> bool:
         return False
     try:
         import shutil
+
         shutil.copy2(KOFFER_PATH, KOFFER_BACKUP_PATH)
         secure_file_permissions(KOFFER_BACKUP_PATH)
         return True

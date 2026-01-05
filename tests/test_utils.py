@@ -63,15 +63,16 @@ class TestInferEnvVar:
     )
     def test_infer_env_var(self, name: str, secret_type: str, expected: str) -> None:
         assert infer_env_var(name, secret_type) == expected
-    
+
+
 class TestAnonymizeSecret:
     """Tests for secret anonymization."""
-    
+
     def test_anonymize_long_secret(self) -> None:
         """Long secrets should show first 10 and last 2 chars."""
         result = anonymize_secret("sk-1234567890abcdefghij")
         assert result == "sk-1234567...ij"
-    
+
     def test_anonymize_short_secret(self) -> None:
         """Short and edge-case secrets should be mostly/fully hidden."""
         assert anonymize_secret("abc") == "***bc"
@@ -112,7 +113,9 @@ class TestFormatExport:
             ("bash", "base64 -d"),
         ],
     )
-    def test_format_obfuscated_does_not_leak_plaintext(self, shell: str, must_contain: str) -> None:
+    def test_format_obfuscated_does_not_leak_plaintext(
+        self, shell: str, must_contain: str
+    ) -> None:
         result = format_export("TEST_KEY", "secret123", shell)
         assert must_contain in result
         assert "secret123" not in result
@@ -124,10 +127,12 @@ class TestFormatExport:
     def test_format_show_full_includes_plaintext(self, shell: str) -> None:
         result = format_export("TEST_KEY", "secret123", shell, show_full=True)
         assert "secret123" in result
-    
+
     def test_format_escapes_special_chars_powershell(self) -> None:
         """PowerShell escaping should protect $, quotes, and backticks."""
-        result = format_export("TEST_KEY", 'value$with"special`chars', "powershell", show_full=True)
+        result = format_export(
+            "TEST_KEY", 'value$with"special`chars', "powershell", show_full=True
+        )
         assert result == '$env:TEST_KEY = "value`$with`"special``chars"'
 
     def test_format_escapes_special_chars_bash(self) -> None:
