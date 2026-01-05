@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/koffer-logo-readme.svg" width="640" alt="koffer" />
+    <img src="https://raw.githubusercontent.com/jsnel/koffer/main/assets/koffer-logo-readme.svg" width="640" alt="koffer" />
 </p>
 
 # `koffer >_`
@@ -27,9 +27,9 @@ Koffer is designed to be an easy-to-install, portable, no-subscription keystore 
 ### Using uv
 
 ```bash
-# Install as a tool
+# Install as a tool (globally) using uv:
 uv tool install koffer
-# latest development version:
+# Install the latest (unreleased) development version:
 uv tool install git+https://github.com/jsnel/koffer.git
 ```
 
@@ -179,7 +179,7 @@ Remember: This is a **koffer**, not a vault. It's designed for convenience and "
 
 ## Supported Services
 
-Includes default environment variable mappings for 40+ services:
+_Supported_ is a big word here, but koffer includes default environment variable mappings for some number of services (and you can easily add your own):
 
 **AI/ML**: OpenAI, Anthropic, Google/Gemini, Groq, Mistral, Cohere, Together, Perplexity, Fireworks, DeepSeek, xAI, HuggingFace, Replicate
 

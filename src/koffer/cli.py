@@ -733,39 +733,22 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  Add secrets:
-    koffer add openai
-    koffer add anthropic
-    koffer add github --type token
-    koffer add myservice --env-var MY_SECRET --type secret
+    Add a secret (e.g.):
+        koffer add openai
+        koffer add myservice --env-var MY_SECRET --type secret
 
-  Add with companion env vars (set when secret is unlocked):
-    koffer add anthropic-openrouter    # Pre-configured for Claude Code via OpenRouter
-    koffer add myapi -c API_URL=https://api.example.com -c API_VERSION=v2
+    Run a command with secrets in the environment:
+        koffer run -- python my_script.py
 
-  Run commands with secrets (recommended - never exposes secrets):
-    koffer run claude
-    koffer run -- code .
-    koffer run -- codex chat
-    koffer run -n openai anthropic -- python my_script.py
+    Unlock into your current shell (recommended):
+        iex (koffer unlock)                  # PowerShell
+        eval "$(koffer unlock --shell bash)"   # Bash/WSL
 
-  Unlock secrets (default: uses clipboard for safety):
-    iex (koffer unlock)              # PowerShell - secrets never touch stdout!
-    koffer unlock openai anthropic   # unlock specific secrets only
-    koffer unlock --keep-history     # don't clear shell history
-
-  Unlock in Bash/WSL:
-    eval "$(koffer unlock --shell bash)"
-
-  Direct stdout mode (less secure, secrets visible briefly):
-    Invoke-Expression (koffer unlock --stdout)   # PowerShell
-    eval "$(koffer unlock --stdout)"             # Bash
-
-  Security: By default, the unlock command removes itself from shell history.
+    Tip: unlock uses the clipboard + scrubs history by default.
 
 Install with uv:
-    uv tool install git+https://github.com/jsnel/koffer.git
-        """,
+    uv tool install koffer
+""",
     )
 
     sub = parser.add_subparsers(dest="subcommand", required=True)
