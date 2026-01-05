@@ -72,6 +72,73 @@ exclude_lines = [
 
 [tool.ruff]
 line-length = 99
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    # Formatter conflicts / handled by ruff-format
+    "COM812",
+    "COM819",
+    "E501",
+    "ISC001",
+    "ISC002",
+
+    # Docstrings: valuable but too noisy for this small CLI
+    "D",
+
+    # Annotations: repo is typed, but not strictly-enforced
+    "ANN",
+
+    # Allow `print()` in a CLI (messages go to stderr in most cases)
+    "T201",
+
+    # Security rules can be noisy for a CLI that legitimately uses subprocess.
+    # Keep the rest of Bandit checks, but don't flag subprocess usage.
+    "S603",
+    "S607",
+
+    # Pytest style: prefer plain asserts in tests
+    "PT",
+
+    # Boolean trap rules add a lot of noise for CLIs
+    "FBT",
+
+    # Complexity/style rules that don’t add much value here
+    "PLR",
+
+    # Complexity thresholds and micro-style preferences are too noisy
+    "C901",
+    "PERF203",
+    "SIM108",
+    "TRY300",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    # Test code uses hard-coded tokens/password-like strings
+    "S105",
+    "S106",
+    "S107",
+    # Allow asserts in tests
+    "S101",
+
+    # Tests intentionally use lots of fixtures / long signatures
+    "ARG",
+
+    # Type-checking import nudges aren’t helpful in tests
+    "TC",
+
+    # Exception-message / style rules are too pedantic for tests
+    "EM",
+    "TRY",
+
+    # Test helpers sometimes raise AssertionError with messages
+    "B017",
+
+    # Bandit false positives for test data
+    "S604",
+]
 
 [dependency-groups]
 dev = [

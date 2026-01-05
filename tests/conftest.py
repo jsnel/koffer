@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from koffer import cli, storage, crypto
+from koffer import cli, crypto, storage
 
 
 @pytest.fixture
@@ -34,8 +34,7 @@ def mock_keyring(monkeypatch: pytest.MonkeyPatch) -> dict[str, str]:
 
     def mock_delete(service: str, username: str) -> None:
         key = f"{service}:{username}"
-        if key in storage:
-            del storage[key]
+        storage.pop(key, None)
 
     monkeypatch.setattr("keyring.set_password", mock_set)
     monkeypatch.setattr("keyring.get_password", mock_get)

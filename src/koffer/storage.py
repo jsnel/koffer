@@ -6,11 +6,14 @@ import base64
 import json
 import os
 import platform
+import shutil
 import stat
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+from cryptography.exceptions import InvalidTag
 
 from koffer.crypto import decrypt_value
 
@@ -90,9 +93,7 @@ def entry_aad(entry: SecretEntry) -> bytes:
     so tampering with those fields causes decryption to fail.
     """
     companions_json = json.dumps(entry.companions or {}, sort_keys=True, separators=(",", ":"))
-    return (f"{entry.name}\0{entry.env_var}\0{entry.secret_type}\0{companions_json}").encode(
-        "utf-8"
-    )
+    return (f"{entry.name}\0{entry.env_var}\0{entry.secret_type}\0{companions_json}").encode()
 
 
 def secure_file_permissions(path: Path) -> None:
@@ -147,11 +148,11 @@ def verify_password(koffer: Koffer, key: bytes) -> bool:
         first = next(iter(koffer.entries.values()))
         try:
             decrypt_value(key, first.ciphertext, first.nonce, aad=entry_aad(first))
-        except Exception:
+        except InvalidTag:
             # Legacy vaults did not bind metadata as AAD.
             decrypt_value(key, first.ciphertext, first.nonce, aad=None)
         return True
-    except Exception:
+    except (InvalidTag, ValueError, TypeError):
         return False
 
 
@@ -160,12 +161,10 @@ def backup_koffer() -> bool:
     if not KOFFER_PATH.exists():
         return False
     try:
-        import shutil
-
         shutil.copy2(KOFFER_PATH, KOFFER_BACKUP_PATH)
         secure_file_permissions(KOFFER_BACKUP_PATH)
         return True
-    except Exception:
+    except (OSError, shutil.Error):
         return False
 
 
@@ -173,4 +172,4 @@ def should_auto_backup(koffer: Koffer | None) -> bool:
     """Check if auto-backup is enabled (defaults to True)."""
     if koffer is None:
         return True
-    return koffer.get_config("AUTO_BACKUP", True)
+    return koffer.get_config("AUTO_BACKUP", default=True)

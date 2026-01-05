@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import os
 import platform
 import re
@@ -12,6 +13,10 @@ from typing import NoReturn
 MAX_NAME_LENGTH = 64
 MAX_SECRET_LENGTH = 8192
 NAME_PATTERN = re.compile(r"^[a-zA-Z][a-zA-Z0-9_-]*$")
+
+ANONYMIZE_PREFIX_LEN = 10
+ANONYMIZE_SUFFIX_LEN = 2
+ANONYMIZE_MIN_LEN = ANONYMIZE_PREFIX_LEN + ANONYMIZE_SUFFIX_LEN
 
 
 def error_exit(message: str, code: int = 1) -> NoReturn:
@@ -37,7 +42,9 @@ def validate_name(name: str) -> str:
 
 def detect_shell() -> str:
     """Detect current shell type."""
-    if os.environ.get("PSModulePath"):
+    # PowerShell uses `PSModulePath` (mixed case). On Windows env vars are
+    # case-insensitive, but on Linux/macOS they are case-sensitive.
+    if os.environ.get("PSModulePath") or os.environ.get("PSMODULEPATH"):  # noqa: SIM112
         return "powershell"
     shell = os.environ.get("SHELL", "")
     if "bash" in shell or "zsh" in shell or os.environ.get("WSL_DISTRO_NAME"):
@@ -47,9 +54,11 @@ def detect_shell() -> str:
 
 def anonymize_secret(value: str) -> str:
     """Anonymize secret for display (first 10 chars + last 2)."""
-    if len(value) <= 12:
-        return "***" + value[-2:] if len(value) >= 2 else "***"
-    return value[:10] + "..." + value[-2:]
+    if len(value) <= ANONYMIZE_MIN_LEN:
+        return (
+            "***" + value[-ANONYMIZE_SUFFIX_LEN:] if len(value) >= ANONYMIZE_SUFFIX_LEN else "***"
+        )
+    return value[:ANONYMIZE_PREFIX_LEN] + "..." + value[-ANONYMIZE_SUFFIX_LEN:]
 
 
 def infer_env_var(name: str, secret_type: str) -> str:
@@ -59,24 +68,19 @@ def infer_env_var(name: str, secret_type: str) -> str:
     return f"{name_upper}{suffixes.get(secret_type, '_SECRET')}"
 
 
-def format_export(env_var: str, value: str, shell: str, show_full: bool = False) -> str:
+def format_export(env_var: str, value: str, shell: str, *, show_full: bool = False) -> str:
     """Format environment variable export for shell."""
     if show_full:
         # Show plaintext for convenience
         if shell == "powershell":
             escaped = value.replace("`", "``").replace('"', '`"').replace("$", "`$")
             return f'$env:{env_var} = "{escaped}"'
-        else:
-            escaped = value.replace("'", "'\"'\"'")
-            return f"export {env_var}='{escaped}'"
-    else:
-        # Obfuscate with base64 encoding
-        import base64
+        escaped = value.replace("'", "'\"'\"'")
+        return f"export {env_var}='{escaped}'"
+    # Obfuscate with base64 encoding
+    encoded = base64.b64encode(value.encode()).decode()
+    anonymized = anonymize_secret(value)
 
-        encoded = base64.b64encode(value.encode()).decode()
-        anonymized = anonymize_secret(value)
-
-        if shell == "powershell":
-            return f'$env:{env_var} = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("{encoded}"))  # {anonymized}'
-        else:
-            return f"export {env_var}=$(echo '{encoded}' | base64 -d)  # {anonymized}"
+    if shell == "powershell":
+        return f'$env:{env_var} = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("{encoded}"))  # {anonymized}'
+    return f"export {env_var}=$(echo '{encoded}' | base64 -d)  # {anonymized}"

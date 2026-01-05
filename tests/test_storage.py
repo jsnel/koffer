@@ -12,7 +12,6 @@ import pytest
 import koffer.storage as storage_mod
 from koffer.crypto import encrypt_value
 
-
 pytestmark = pytest.mark.usefixtures("fast_kdf")
 
 

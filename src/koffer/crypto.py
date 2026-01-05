@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import secrets
+
 from argon2.low_level import Type, hash_secret_raw
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 

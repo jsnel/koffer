@@ -4,29 +4,33 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextlib
 import getpass
 import json
 import os
 import secrets
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
 import keyring
 import pyperclip
+from cryptography.exceptions import InvalidTag
+from keyring.errors import KeyringError
 
 from koffer.crypto import decrypt_value, derive_key, encrypt_value
 from koffer.storage import (
-    KOFFER_PATH,
     KOFFER_BACKUP_PATH,
-    SecretEntry,
+    KOFFER_PATH,
     Koffer,
+    SecretEntry,
+    backup_koffer,
+    entry_aad,
     load_koffer,
     save_koffer,
-    verify_password,
-    backup_koffer,
     should_auto_backup,
-    entry_aad,
+    verify_password,
 )
 from koffer.utils import (
     detect_shell,
@@ -62,13 +66,11 @@ def _clipboard_copy(text: str) -> None:
 
 
 def _run_subprocess(command: list[str], env: dict[str, str]) -> Any:
-    import subprocess
-
-    return subprocess.run(command, env=env)
+    return subprocess.run(command, check=False, env=env)
 
 
 def _decrypt_entry_with_migration(
-    koffer: Koffer, key: bytes, entry: SecretEntry
+    _koffer: Koffer, key: bytes, entry: SecretEntry
 ) -> tuple[str, bool]:
     """Decrypt an entry and upgrade legacy entries to AAD-bound encryption.
 
@@ -77,7 +79,7 @@ def _decrypt_entry_with_migration(
     aad = entry_aad(entry)
     try:
         return decrypt_value(key, entry.ciphertext, entry.nonce, aad=aad), False
-    except Exception:
+    except InvalidTag:
         plaintext = decrypt_value(key, entry.ciphertext, entry.nonce, aad=None)
         entry.ciphertext, entry.nonce = encrypt_value(key, plaintext, aad=aad)
         return plaintext, True
@@ -88,7 +90,7 @@ def store_password_in_keyring(password: str) -> bool:
     try:
         keyring.set_password(KEYRING_SERVICE, KEYRING_USERNAME, password)
         return True
-    except Exception as e:
+    except (KeyringError, OSError) as e:
         print(
             f"Warning: could not store password in credential manager: {e}",
             file=sys.stderr,
@@ -100,16 +102,14 @@ def get_password_from_keyring() -> str | None:
     """Retrieve master password from system credential store."""
     try:
         return keyring.get_password(KEYRING_SERVICE, KEYRING_USERNAME)
-    except Exception:
+    except (KeyringError, OSError):
         return None
 
 
 def delete_password_from_keyring() -> None:
     """Remove master password from system credential store."""
-    try:
+    with contextlib.suppress(KeyringError, OSError):
         keyring.delete_password(KEYRING_SERVICE, KEYRING_USERNAME)
-    except Exception:
-        pass
 
 
 def get_password(confirm: bool = False, use_keyring: bool = True) -> str:
@@ -230,9 +230,8 @@ def cmd_add(args: argparse.Namespace) -> None:
             print("Creating new koffer. Choose a strong master password.")
             password = get_password(confirm=True, use_keyring=False)
             koffer = Koffer(salt=secrets.token_bytes(16))
-            if not args.no_keyring:
-                if store_password_in_keyring(password):
-                    print("Password stored in system credential manager.", file=sys.stderr)
+            if (not args.no_keyring) and store_password_in_keyring(password):
+                print("Password stored in system credential manager.", file=sys.stderr)
         else:
             password = get_password(use_keyring=not args.no_keyring)
             key = derive_key(password, koffer.salt)
@@ -315,7 +314,7 @@ def cmd_remove(args: argparse.Namespace) -> None:
         )
 
 
-def cmd_list(args: argparse.Namespace) -> None:
+def cmd_list(_args: argparse.Namespace) -> None:
     """List stored secrets."""
     koffer = load_koffer()
     if koffer is None or not koffer.entries:
@@ -387,7 +386,7 @@ def cmd_unlock(args: argparse.Namespace) -> None:
                 export_commands.append(
                     format_export(comp_var, comp_value, shell, show_full=show_full)
                 )
-        except Exception:
+        except (InvalidTag, ValueError):
             print(f"# Failed to decrypt '{name}' - wrong password?", file=sys.stderr)
             sys.exit(1)
 
@@ -452,7 +451,7 @@ def cmd_unlock(args: argparse.Namespace) -> None:
             print(f"# Unlocked {len(export_commands)} secret(s):", file=sys.stderr)
             for name_info in unlocked_names:
                 print(f"#   {name_info}", file=sys.stderr)
-        except Exception as e:
+        except (pyperclip.PyperclipException, OSError) as e:
             print(f"# Warning: could not copy to clipboard: {e}", file=sys.stderr)
             print("# Falling back to stdout", file=sys.stderr)
             print(clipboard_content)
@@ -506,11 +505,11 @@ def cmd_rotate(args: argparse.Namespace) -> None:
                     decrypted[name] = decrypt_value(
                         old_key, entry.ciphertext, entry.nonce, aad=entry_aad(entry)
                     )
-                except Exception:
+                except InvalidTag:
                     decrypted[name] = decrypt_value(
                         old_key, entry.ciphertext, entry.nonce, aad=None
                     )
-            except Exception:
+            except (InvalidTag, ValueError):
                 error_exit("incorrect password")
 
         print("\nEnter new master password.")
@@ -545,11 +544,11 @@ def cmd_rotate(args: argparse.Namespace) -> None:
         print("Master password rotated.", file=sys.stderr)
 
 
-def cmd_purge_keyring(args: argparse.Namespace) -> None:
+def cmd_purge_keyring(_args: argparse.Namespace) -> None:
     """Remove stored master password from the credential manager."""
     try:
         existing = keyring.get_password(KEYRING_SERVICE, KEYRING_USERNAME)
-    except Exception as e:
+    except (KeyringError, OSError) as e:
         error_exit(f"could not check credential manager: {e}")
 
     if not existing:
@@ -558,13 +557,13 @@ def cmd_purge_keyring(args: argparse.Namespace) -> None:
 
     try:
         keyring.delete_password(KEYRING_SERVICE, KEYRING_USERNAME)
-    except Exception as e:
+    except (KeyringError, OSError) as e:
         error_exit(f"failed to purge credential manager: {e}")
 
     print("Master password removed from credential manager.", file=sys.stderr)
 
 
-def cmd_store_keyring(args: argparse.Namespace) -> None:
+def cmd_store_keyring(_args: argparse.Namespace) -> None:
     """Store master password in the system credential manager."""
     koffer = load_koffer()
     if koffer is None:
@@ -598,7 +597,7 @@ def cmd_export(args: argparse.Namespace) -> None:
         output.write_text(KOFFER_PATH.read_text())
         if os.name != "nt":
             output.chmod(0o600)
-    except Exception as e:
+    except OSError as e:
         error_exit(f"failed to export koffer: {e}")
 
     print(f"Exported koffer to {output}", file=sys.stderr)
@@ -620,7 +619,7 @@ def cmd_import(args: argparse.Namespace) -> None:
         error_exit(f"invalid JSON in koffer file: {e}")
     except (KeyError, TypeError) as e:
         error_exit(f"invalid koffer file format: {e}")
-    except Exception as e:
+    except (OSError, ValueError) as e:
         error_exit(f"invalid koffer file: {e}")
 
     KOFFER_PATH.write_text(input_path.read_text())
@@ -673,7 +672,7 @@ def cmd_run(args: argparse.Namespace) -> None:
                 env[comp_var] = comp_value
             companion_info = f" (+{len(entry.companions)} companions)" if entry.companions else ""
             unlocked_names.append(f"{name} -> ${entry.env_var}{companion_info}")
-        except Exception:
+        except (InvalidTag, ValueError):
             error_exit(f"failed to decrypt '{name}' - wrong password?")
 
     if migrated_any:
@@ -691,7 +690,7 @@ def cmd_run(args: argparse.Namespace) -> None:
         sys.exit(result.returncode)
     except FileNotFoundError:
         error_exit(f"command not found: {command[0]}")
-    except Exception as e:
+    except OSError as e:
         error_exit(f"failed to run command: {e}")
 
 

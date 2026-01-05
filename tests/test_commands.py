@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 import base64
 import json
-import secrets
 import re
+import secrets
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -14,8 +14,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-import koffer.cli as cli
-
+from koffer import cli
 
 pytestmark = pytest.mark.usefixtures("fast_kdf")
 

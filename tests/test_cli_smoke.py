@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-import koffer.cli as cli
+from koffer import cli
 
 
 def _run_cli(monkeypatch: pytest.MonkeyPatch, argv: list[str]) -> None:
