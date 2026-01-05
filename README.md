@@ -30,7 +30,7 @@ Koffer is designed to be an easy-to-install, portable, no-subscription keystore 
 # Install as a tool
 uv tool install koffer
 # latest development version:
-uv tool install git+https://github.com/jsnel/koffer.git
+uv tool install koffer
 ```
 
 ## Quick Start
