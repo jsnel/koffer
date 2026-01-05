@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/koffer-logo-readme.svg" width="640" alt="koffer" />
+    <img src="https://raw.githubusercontent.com/jsnel/koffer/main/assets/koffer-logo-readme.svg" width="640" alt="koffer" />
 </p>
 
 # `koffer >_`
